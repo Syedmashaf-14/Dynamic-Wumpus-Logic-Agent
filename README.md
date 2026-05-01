@@ -14,8 +14,7 @@
 - [Game Rules](#-game-rules)
 - [API Reference](#-api-reference)
 - [Deployment](#-deployment)
-- [Contributing](#-contributing)
-- [License](#-license)
+
 
 ---
 
@@ -223,7 +222,6 @@ POST /api/move
 }
 ```
 
----
 
 ## 🌍 Deployment
 
@@ -233,21 +231,6 @@ https://dynamic-wumpus-logic-agent-i7cti9ebr-mashaf-zaidi-s-projects.vercel.app/
 ---
 
 
-
----
-
-## References
-
-- Russell, S. & Norvig, P. — *Artificial Intelligence: A Modern Approach* (Wumpus World, Chapter 7)
-- [Propositional Logic & Knowledge Bases](https://en.wikipedia.org/wiki/Propositional_calculus)
-
----
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
 
 <div align="center">
 
