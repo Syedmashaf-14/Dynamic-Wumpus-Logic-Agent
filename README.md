@@ -1,13 +1,6 @@
 # 🧠 Dynamic Wumpus Logic Agent
 
 <div align="center">
-
-![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-Backend-000000?style=for-the-badge&logo=flask&logoColor=white)
-![React](https://img.shields.io/badge/React-Frontend-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
-
 **An intelligent AI agent that navigates the classic Wumpus World using propositional logic and knowledge-based reasoning — built with a Flask backend and React frontend.**
 
 [ Live Demo]([https://dynamic-wumpus-logic-agent-mu.vercel.app)](https://dynamic-wumpus-logic-agent-i7cti9ebr-mashaf-zaidi-s-projects.vercel.app/) · [📁 Repository](https://github.com/Syedmashaf-14/Dynamic-Wumpus-Logic-Agent) · [🐛 Report Bug](https://github.com/Syedmashaf-14/Dynamic-Wumpus-Logic-Agent/issues)
