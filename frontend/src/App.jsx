@@ -6,8 +6,6 @@ const App = () => {
   const [rows, setRows] = useState(4);
   const [cols, setCols] = useState(4);
   const [gameState, setGameState] = useState(null);
-  
-  // Naya State: Auto-play ko on/off karne ke liye
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
 
   const backendUrl = import.meta.env?.VITE_BACKEND_URL || 'https://mashaf.pythonanywhere.com';
@@ -16,9 +14,9 @@ const App = () => {
     try {
       const response = await axios.post(`${backendUrl}/api/init`, { rows, cols });
       setGameState(response.data);
-      setIsAutoPlaying(false); // Nayi game par auto-play band rakhein
+      setIsAutoPlaying(false);
     } catch (error) {
-      console.error(error);
+      console.error("Game Init Error:", error);
     }
   };
 
@@ -34,62 +32,77 @@ const App = () => {
         const response = await axios.post(`${backendUrl}/api/move`, { r, c });
         setGameState(response.data);
       } catch (error) {
-        console.error(error);
+        console.error("Move Error:", error);
       }
     }
   };
 
   // ==========================================
-  // AI LOGIC ENGINE (Naya Hisa)
+  // AI LOGIC ENGINE (With Debugging Logs)
   // ==========================================
   const makeIntelligentMove = () => {
-    if (!gameState || !gameState.is_alive) return;
+    console.log("🤖 AI is thinking...");
+    
+    if (!gameState || !gameState.is_alive) {
+      console.log("❌ Game over or not ready.");
+      setIsAutoPlaying(false);
+      return;
+    }
 
     const [r, c] = gameState.agent_pos;
+    console.log(`📍 Current Position: [${r}, ${c}]`);
     
-    // 1. Aas paas ke 4 cells nikalein
     const adjacent = [
       [r + 1, c], [r - 1, c], [r, c + 1], [r, c - 1]
     ].filter(([nr, nc]) => nr >= 0 && nr < gameState.rows && nc >= 0 && nc < gameState.cols);
 
-    // 2. Sirf un cells ko filter karein jo backend ne "safe" bataye hain
-    const safeAdjacent = adjacent.filter(([nr, nc]) =>
-      gameState.safe_cells.some(s => s[0] === nr && s[1] === nc)
+    // Fallback if backend arrays are missing
+    const visited = gameState.visited || [];
+    const safe_cells = gameState.safe_cells || [];
+
+    const unvisitedAdjacent = adjacent.filter(([nr, nc]) =>
+      !visited.some(v => v[0] === nr && v[1] === nc)
     );
 
-    if (safeAdjacent.length === 0) {
-      setIsAutoPlaying(false);
-      console.log("Agent stuck! No safe adjacent cells.");
-      return;
-    }
+    const safeAdjacent = adjacent.filter(([nr, nc]) =>
+      safe_cells.some(s => s[0] === nr && s[1] === nc)
+    );
 
-    // 3. Un safe cells mein se unhein dhoondein jahan agent abhi tak nahi gaya
     const unvisitedSafe = safeAdjacent.filter(([nr, nc]) =>
-      !gameState.visited.some(v => v[0] === nr && v[1] === nc)
+      !visited.some(v => v[0] === nr && v[1] === nc)
     );
 
     let nextMove;
+
     if (unvisitedSafe.length > 0) {
-      // Agar naya safe cell mil gaya, toh wahan jao
       nextMove = unvisitedSafe[Math.floor(Math.random() * unvisitedSafe.length)];
-    } else {
-      // Agar naya rasta nahi bacha, toh peechay (backtrack) mud jao
+      console.log("✅ AI Decision: Moving to NEW Safe Cell", nextMove);
+    } else if (safeAdjacent.length > 0) {
       nextMove = safeAdjacent[Math.floor(Math.random() * safeAdjacent.length)];
+      console.log("🔄 AI Decision: Backtracking to Old Safe Cell", nextMove);
+    } else if (unvisitedAdjacent.length > 0) {
+      nextMove = unvisitedAdjacent[Math.floor(Math.random() * unvisitedAdjacent.length)];
+      console.log("⚠️ AI Decision: TAKING A RISK!", nextMove);
+    } else {
+      console.log("🛑 AI Decision: Stuck! Nowhere to go.");
+      setIsAutoPlaying(false);
+      return;
     }
 
-    // 4. Agent ko khud move karwa dein
     handleMove(nextMove[0], nextMove[1]);
   };
 
-  // Ye loop har 800ms baad AI ko move karne ka kehta hai agar Auto-Play ON ho
+  // The AI Loop
   useEffect(() => {
     let timer;
     if (isAutoPlaying && gameState && gameState.is_alive) {
+      console.log("⏳ Waiting 800ms for next move...");
       timer = setTimeout(() => {
         makeIntelligentMove();
-      }, 800); // 800ms ki delay taake insaan usay chalta hua dekh sake
+      }, 800);
     } else if (gameState && !gameState.is_alive) {
-      setIsAutoPlaying(false); // Agar wumpus mil gaya ya mar gaya toh loop band
+      console.log("☠️ Agent died or won. Stopping AI.");
+      setIsAutoPlaying(false);
     }
     return () => clearTimeout(timer);
   }, [isAutoPlaying, gameState]);
@@ -98,11 +111,11 @@ const App = () => {
   const getCellClass = (r, c) => {
     if (!gameState) return 'cell gray';
     
-    const isVisited = gameState.visited.some(v => v[0] === r && v[1] === c);
-    const isSafe = gameState.safe_cells.some(s => s[0] === r && s[1] === c);
+    const isVisited = gameState.visited?.some(v => v[0] === r && v[1] === c);
+    const isSafe = gameState.safe_cells?.some(s => s[0] === r && s[1] === c);
     const isAgent = gameState.agent_pos[0] === r && gameState.agent_pos[1] === c;
     const isWumpus = !gameState.is_alive && gameState.wumpus_pos[0] === r && gameState.wumpus_pos[1] === c;
-    const isPit = !gameState.is_alive && gameState.pits.some(p => p[0] === r && p[1] === c);
+    const isPit = !gameState.is_alive && gameState.pits?.some(p => p[0] === r && p[1] === c);
 
     if (isWumpus || isPit) return 'cell red';
     if (isAgent) return 'cell agent';
@@ -135,7 +148,7 @@ const App = () => {
         </div>
         <div className="metric">
           <h3>Current Percepts</h3>
-          <p>{gameState.percepts.length > 0 ? gameState.percepts.join(', ') : 'None'}</p>
+          <p>{gameState.percepts?.length > 0 ? gameState.percepts.join(', ') : 'None'}</p>
         </div>
         <div className="metric">
           <h3>Status</h3>
@@ -158,24 +171,36 @@ const App = () => {
             >
               {gameState.agent_pos[0] === r && gameState.agent_pos[1] === c ? 'A' : ''}
               {!gameState.is_alive && gameState.wumpus_pos[0] === r && gameState.wumpus_pos[1] === c ? 'W' : ''}
-              {!gameState.is_alive && gameState.pits.some(p => p[0] === r && p[1] === c) ? 'P' : ''}
+              {!gameState.is_alive && gameState.pits?.some(p => p[0] === r && p[1] === c) ? 'P' : ''}
             </div>
           ))
         )}
       </div>
 
-      <div className="controls">
-        
+      <div className="controls" style={{ marginTop: '20px' }}>
         <button 
           onClick={() => setIsAutoPlaying(!isAutoPlaying)} 
           className="auto-play-btn"
-          style={{ backgroundColor: isAutoPlaying ? 'orange' : '#007BFF', color: 'white', marginRight: '10px' }}
+          style={{ 
+            backgroundColor: isAutoPlaying ? '#ff4757' : '#2ed573', 
+            color: 'white', 
+            marginRight: '10px',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
         >
-          {isAutoPlaying ? 'Pause AI' : 'Start AI Auto-Play'}
+          {isAutoPlaying ? '⏸️ Pause AI' : '▶️ Start AI Auto-Play'}
         </button>
 
-        <button onClick={() => setGameState(null)} className="reset-btn">
-          New Game
+        <button 
+          onClick={() => { setGameState(null); setIsAutoPlaying(false); }} 
+          className="reset-btn"
+          style={{ padding: '10px 20px', cursor: 'pointer' }}
+        >
+          🔄 New Game
         </button>
       </div>
     </div>
