@@ -7,9 +7,12 @@ const App = () => {
   const [cols, setCols] = useState(4);
   const [gameState, setGameState] = useState(null);
 
+  const backendUrl = import.meta.env?.VITE_BACKEND_URL || 'https://mashaf.pythonanywhere.com';
+
   const initializeGame = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/init', { rows, cols });
+      // Localhost ko backendUrl se replace kar diya gaya hai
+      const response = await axios.post(`${backendUrl}/api/init`, { rows, cols });
       setGameState(response.data);
     } catch (error) {
       console.error(error);
@@ -25,7 +28,8 @@ const App = () => {
 
     if (isAdjacent) {
       try {
-        const response = await axios.post('http://localhost:5000/api/move', { r, c });
+        // Yahan bhi Localhost ko backendUrl se replace kar diya gaya hai
+        const response = await axios.post(`${backendUrl}/api/move`, { r, c });
         setGameState(response.data);
       } catch (error) {
         console.error(error);
