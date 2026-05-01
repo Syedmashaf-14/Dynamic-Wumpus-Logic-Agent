@@ -1,14 +1,5 @@
 # 🧠 Dynamic Wumpus Logic Agent
 
-<div align="center">
-**An intelligent AI agent that navigates the classic Wumpus World using propositional logic and knowledge-based reasoning — built with a Flask backend and React frontend.**
-
-[ Live Demo]([https://dynamic-wumpus-logic-agent-mu.vercel.app)](https://dynamic-wumpus-logic-agent-i7cti9ebr-mashaf-zaidi-s-projects.vercel.app/) · [📁 Repository](https://github.com/Syedmashaf-14/Dynamic-Wumpus-Logic-Agent) · [🐛 Report Bug](https://github.com/Syedmashaf-14/Dynamic-Wumpus-Logic-Agent/issues)
-
-</div>
-
----
-
 ## 📖 Table of Contents
 
 - [About the Project](#-about-the-project)
